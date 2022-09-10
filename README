@@ -1,0 +1,19 @@
+aws ecr create-repository --repository-name docker-lambda
+
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 846634201516.dkr.ecr.us-west-2.amazonaws.com
+
+docker build -t docker-lambda .
+
+aws lambda invoke \
+--region us-west-2 \
+--endpoint http://localhost:8080 \
+--no-sign-request \
+--function-name function \
+--cli-binary-format raw-in-base64-out \
+--payload '{}' output.txt
+
+
+docker run --rm -p 8080:8080 docker-lambda
+
+docker tag docker-lambda:latest 846634201516.dkr.ecr.us-west-2.amazonaws.com/docker-lambda:latest
+docker push 846634201516.dkr.ecr.us-west-2.amazonaws.com/docker-lambda:latest
